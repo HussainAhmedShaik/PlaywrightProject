@@ -1,41 +1,77 @@
 // @ts-check
 const { defineConfig, devices } = require('@playwright/test');
+const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
 module.exports = defineConfig({
   testDir: './tests',
+
   timeout: 30 * 1000,
+
   expect: {
     timeout: 5000,
   },
+
   fullyParallel: true,
+
   forbidOnly: !!process.env.CI,
+
   retries: process.env.CI ? 2 : 0,
+
   workers: process.env.CI ? 1 : undefined,
+
   reporter: [
     ['list'],
-    ['html', { open: 'never' }],
+    ['html', { 
+      open: 'never', 
+      outputFolder:`Test-report-${timestamp}`
+    }],
   ],
+
   use: {
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+
+    headless: false,
+
+    // Required for maximizing
+    viewport: null,
+
+    launchOptions: {
+      args: ['--start-maximized'],
+    },
   },
+
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        browserName: 'chromium',
+        viewport: null,
+      },
     },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+
+    // {
+    //   name: 'firefox',
+    //   use: {
+    //     browserName: 'firefox',
+    //     viewport: null,
+    //   },
+    // },
+
+    // {
+    //   name: 'webkit',
+    //   use: {
+    //     browserName: 'webkit',
+    //     viewport: {
+    //       width: 1280,
+    //       height: 720,
+    //     },
+    //   },
+    // },
   ],
 });
 
